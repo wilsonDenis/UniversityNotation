@@ -6,6 +6,7 @@ use App\Models\Comment;
 use App\Models\Critere;
 use App\Models\Rating;
 use App\Models\University;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -14,11 +15,14 @@ class AdminController extends Controller
     public function index()
     {
         $universitiesCount = University::count();
-        $criteriaCount = Critere::count();
+       
         $ratingsCount = Rating::count();
         $commentsCount = Comment::count();
+        $usersCount = User::count(); 
 
-        return view('admin.dashboard', compact('universitiesCount', 'criteriaCount', 'ratingsCount'));
+        return view('admin.dashboard', compact('universitiesCount', 'usersCount', 'ratingsCount', 'commentsCount'));
+
+        
     }
 
 }

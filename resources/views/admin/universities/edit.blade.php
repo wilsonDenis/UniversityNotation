@@ -4,7 +4,7 @@
 @section('title', 'Edit University')
 
 @section('content')
-<form action="{{ route('universities.update', $university) }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('university.update', $university) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <div class="shadow sm:rounded-md sm:overflow-hidden">

@@ -13,11 +13,11 @@ class UniversityPhotoController extends Controller
     {
         $request->validate([
             'photos' => 'required',
-            'photos.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Valider chaque fichier individuellement
+            'photos.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
         ]);
 
         foreach ($request->file('photos') as $photo) {
-            $path = $photo->store('university_photos', 'public'); // Stocker les photos dans le disque public sous un dossier university_photos
+            $path = $photo->store('university_photos', 'public'); 
             UniversityPhoto::create([
                 'university_id' => $university->id,
                 'path' => $path,
@@ -30,8 +30,8 @@ class UniversityPhotoController extends Controller
 
     public function destroy(UniversityPhoto $photo)
     {
-        Storage::delete($photo->path); // Supprimer le fichier du disque
-        $photo->delete(); // Supprimer l'entrée de la base de données
+        Storage::delete($photo->path); 
+        $photo->delete(); 
 
         return back()->with('success', 'Photo deleted successfully!');
     }

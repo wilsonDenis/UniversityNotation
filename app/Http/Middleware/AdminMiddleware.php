@@ -16,7 +16,7 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check() || auth()->user()->role !== 'admin') {
-            // Rediriger l'utilisateur si ce n'est pas un admin
+        
             return redirect('/')->with('error', 'You do not have access to this section.');
         }
         return $next($request);

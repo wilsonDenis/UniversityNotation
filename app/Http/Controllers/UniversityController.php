@@ -5,15 +5,29 @@ namespace App\Http\Controllers;
 use App\Models\University;
 use App\Models\UniversityPhoto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UniversityController extends Controller
 {
     //// Affiche la liste de toutes les universités
+    
+
     public function index()
     {
         $universities = University::all();
-        return view('admin.universities.index', compact('universities'));
+        Log::info('Universities:', ['data' => $universities]);
+
+        
+
+        if (Auth::user() && Auth::user()->role === 'admin') {
+        
+            return view('admin.universities.index', compact('universities'));
+        } else {
+            
+            return view('dashboard', compact('universities'));
+        }
     }
 
     // Montre le formulaire pour créer une nouvelle université
@@ -29,7 +43,8 @@ class UniversityController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string',
-            'photos.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validation des photos
+            'photos' => 'required|array|size:2', // S'assure que deux photos sont fournies
+            'photos.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:5120', // Validation des photos avec une limite de 5 Mo
         ]);
 
         DB::beginTransaction();
@@ -40,25 +55,38 @@ class UniversityController extends Controller
             $university->location = $request->location;
             $university->save();
 
-            if ($request->hasfile('photos')) {
-                foreach ($request->file('photos') as $file) {
-                    $path = $file->store('university_photos', 'public');
-                    $photo = new UniversityPhoto();
-                    $photo->university_id = $university->id;
-                    $photo->path = $path;
-                    $photo->save();
-                }
+            foreach ($request->file('photos') as $file) {
+                $path = $file->store('university_photos', 'public');
+                $photo = new UniversityPhoto();
+                $photo->university_id = $university->id;
+                $photo->path = $path;
+                $photo->save();
             }
-
             DB::commit();
-            return redirect()->route('universities.index')->with('success', 'University created successfully!');
+            return redirect()->route('university.index')->with('success', 'University created successfully!');
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->withErrors('An error occurred while creating the university: ' . $e->getMessage());
+            Log::error('Failed to create university: ' . $e->getMessage(), ['exception' => $e]);
+            return redirect()->back()->withErrors('An error occurred while creating the university. Please check the logs for more details.');
         }
     }
 
-    // Affiche les détails d'une université spécifique
+    
+    public function showDetails(University $university)
+    {
+      
+        $university->load('ratings');
+
+ 
+        $rating = $university->ratings->avg('score') ?? 0; 
+
+        return view('details', compact('university', 'rating'));
+    }
+
+
+
+
+    // Affiche les détails d'une université 
     public function show(University $university)
     {
         return view('admin.universities.show', compact('university'));
@@ -80,13 +108,13 @@ class UniversityController extends Controller
 
         $university->update($request->all());
 
-        return redirect()->route('universities.index')->with('success', 'University updated successfully!');
+        return redirect()->route('university.index')->with('success', 'University updated successfully!');
     }
 
     // Supprime une université de la base de données
     public function destroy(University $university)
     {
         $university->delete();
-        return redirect()->route('universities.index')->with('success', 'University deleted successfully!');
+        return redirect()->route('university.index')->with('success', 'University deleted successfully!');
     }
 }

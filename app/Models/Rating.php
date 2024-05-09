@@ -17,10 +17,7 @@ class Rating extends Model
         return $this->belongsTo(University::class);
     }
 
-    public function criteria()
-    {
-        return $this->belongsTo(Critere::class);
-    }
+  
 
     public function user()
     {

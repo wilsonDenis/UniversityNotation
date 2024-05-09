@@ -9,16 +9,15 @@ class RatingController extends Controller
 {
     public function index()
     {
-        $ratings = Rating::with(['university', 'user', 'critere'])->get();
-        return view('admin.ratings.index', compact('ratings'));
+        $ratings = Rating::with(['university', 'user'])->get();
+        return view('admin.ratings.ratingspage', compact('ratings'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'university_id' => 'required|exists:universities,id',
-            'critere_id' => 'required|exists:critere,id',
+            'university_id' => 'required|exists:university,id',
             'score' => 'required|numeric|min:1|max:5'
         ]);
 

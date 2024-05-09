@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class University extends Model
 {
@@ -22,5 +23,20 @@ class University extends Model
     {
         return $this->hasMany(UniversityPhoto::class);
     }
+
+    // Dans votre modèle University
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($university) {
+            // Cette fonction est appelée juste avant que l'université ne soit supprimée
+            $university->photos->each(function ($photo) {
+                Storage::delete($photo->path); // Supprime le fichier physique
+                $photo->delete(); // Supprime l'enregistrement de la base de données
+            });
+        });
+    }
+
 
 }
