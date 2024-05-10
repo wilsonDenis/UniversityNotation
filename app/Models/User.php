@@ -48,7 +48,7 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
-    // Relation avec Ratings
+ 
     public function ratings()
     {
         return $this->hasMany(Rating::class);

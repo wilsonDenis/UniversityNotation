@@ -11,7 +11,7 @@ class Rating extends Model
     protected $table = 'ratings';
     protected $fillable = ['university_id', 'critere_id', 'user_id', 'score'];
 
-    // Relations
+  
     public function university()
     {
         return $this->belongsTo(University::class);
